@@ -1,118 +1,160 @@
-// Profession multipliers and text mappings
-const professionData = {
-  doctor: { multiplier: 0.2, mood: '😠 অত্যন্ত রাগী', contribution: 'উৎসর্গী ডোনার', icon: '💉' },
-  engineer: { multiplier: 0.15, mood: '😐 মাঝারি', contribution: 'প্রকৌশলী', icon: '🛠️' },
-  teacher: { multiplier: 0.12, mood: '😊 আনন্দিত', contribution: 'শিক্ষকের অবদান', icon: '📚' },
-  govt_job: { multiplier: 0.18, mood: '😕 একটু চিন্তিত', contribution: 'সরকারী সহকর্মী', icon: '🏢' },
-  nongovt_job: { multiplier: 0.17, mood: '😐', contribution: 'বেসরকারি কর্মী', icon: '💼' },
-  businessman: { multiplier: 0.25, mood: '😎 খুশি', contribution: 'ব্যবসায়ী', icon: '💰' },
-  freelancer: { multiplier: 0.13, mood: '😌 শান্ত', contribution: 'ফ্রিল্যান্সার', icon: '🖥️' },
-  rickshaw_puller: { multiplier: 0.1, mood: '😓 ক্লান্ত', contribution: 'রিকশাওয়ালা', icon: '🚲' },
-  day_laborer: { multiplier: 0.08, mood: '😩 পরিশ্রমী', contribution: 'দিনমজুর', icon: '🔨' },
-  unemployed: { multiplier: 0.05, mood: '😭 হতাশ', contribution: 'বেকার', icon: '🛌' },
-  expatriate_worker: { multiplier: 0.3, mood: '😤 পরিশ্রমী প্রবাসী', contribution: 'প্রবাসী শ্রমিক', icon: '✈️' },
-  genz: { multiplier: 0.01, mood: '🤡 ক্রিঞ্জ', contribution: 'Gen-Z', icon: '🧢' },
-  retired_awami: { multiplier: 0.05, mood: '😌 অবসরপ্রাপ্ত', contribution: 'অবসরপ্রাপ্ত নেতা', icon: '🎖️' },
-  other: { multiplier: 0.1, mood: '😐 অন্যান্য', contribution: 'অন্যান্য', icon: '❓' },
-};
+// script.js
 
 function calculateChada() {
-  const profession = document.getElementById('profession').value;
-  const salaryInput = document.getElementById('salary').value;
-  const errorDiv = document.getElementById('error-message');
-  const resultContainer = document.getElementById('result-container');
+  const profession = document.getElementById("profession").value;
+  const salaryInput = document.getElementById("salary");
+  const salary = Number(salaryInput.value);
 
-  errorDiv.classList.add('hidden');
-  resultContainer.classList.add('hidden');
+  const errorMessage = document.getElementById("error-message");
+  const resultContainer = document.getElementById("result-container");
+  errorMessage.classList.add("hidden");
+  resultContainer.classList.add("hidden");
 
-  if (profession === 'default') {
-    errorDiv.textContent = 'দয়া করে আপনার পেশা নির্বাচন করুন।';
-    errorDiv.classList.remove('hidden');
-    return;
-  }
-  if (!salaryInput || salaryInput <= 0) {
-    errorDiv.textContent = 'দয়া করে বৈধ মাসিক আয় লিখুন।';
-    errorDiv.classList.remove('hidden');
+  if (profession === "default" || !salary || salary <= 0) {
+    errorMessage.textContent = "অনুগ্রহ করে সঠিক পেশা এবং মাসিক আয় লিখুন।";
+    errorMessage.classList.remove("hidden");
     return;
   }
 
-  const salary = parseFloat(salaryInput);
-  const data = professionData[profession] || professionData['other'];
+  // Define contribution % by profession (fictional for satire)
+  const contributionPercentages = {
+    doctor: 10,
+    engineer: 8,
+    teacher: 7,
+    govt_job: 12,
+    nongovt_job: 15,
+    businessman: 20,
+    freelancer: 6,
+    rickshaw_puller: 3,
+    day_laborer: 2,
+    unemployed: 0,
+    expatriate_worker: 25,
+    genz: 5,
+    retired_awami: 50,
+    other: 7,
+  };
 
-  const chada = salary * data.multiplier;
-  const remaining = salary - chada;
+  // Get contribution %
+  let contribution = contributionPercentages[profession] ?? 7;
 
-  // Set result texts
-  document.getElementById('remaining-salary').textContent = `${remaining.toFixed(2)} টাকা`;
-  document.getElementById('survival-text').textContent = 'পকেট ফাঁকা না হলেও বেঁচে থাকবেন!';
-  document.getElementById('leader-mood-icon').textContent = data.icon;
-  document.getElementById('leader-mood-text').textContent = data.mood;
-  document.getElementById('contribution-icon').textContent = data.icon;
-  document.getElementById('contribution-text').textContent = data.contribution;
-  document.getElementById('humor-text').textContent = `আপনার অবদান চাঁদার হিসাব অনুযায়ী: ${chada.toFixed(2)} টাকা প্রতি মাস।`;
+  // Special overrides
+  if (profession === "retired_awami") {
+    showRetiredAwamiMessage();
+    return;
+  }
 
-  // Detailed breakdown
+  // Calculate
+  const chadaAmount = (salary * contribution) / 100;
+  const remainingSalary = salary - chadaAmount;
+
+  // Prepare icons (using emoji)
+  const survivalIcon = remainingSalary >= 0
+    ? "💵"
+    : "😭";
+
+  const leaderMoodIcon = chadaAmount > 0 ? "😈" : "😐";
+
+  const contributionIcon = contribution > 15 ? "🏦" : "💰";
+
+  // Update DOM
+  document.getElementById("survival-icon").textContent = survivalIcon;
+  document.getElementById("remaining-salary").textContent =
+    `${remainingSalary.toFixed(2)} টাকা`;
+
+  document.getElementById("survival-text").textContent =
+    remainingSalary >= 0
+      ? "এখনো বাঁচার আশা আছে!"
+      : "বাঁচা দুঃসাধ্য, পকেট ফাঁকা!";
+
+  document.getElementById("leader-mood-icon").textContent = leaderMoodIcon;
+  document.getElementById("leader-mood-text").textContent =
+    chadaAmount > 0
+      ? "হাই কমান্ড খুশি"
+      : "হাই কমান্ড হতাশ";
+
+  document.getElementById("contribution-icon").textContent = contributionIcon;
+  document.getElementById("contribution-text").textContent =
+    `আপনি পরিশোধ করবেন ${chadaAmount.toFixed(2)} টাকা (${contribution}%)`;
+
+  // Humor text
+  const humorPhrases = [
+    "রাজনীতি মানে পকেট ফাঁকা, কিন্তু মন খোলা!",
+    "চাঁদা দিলেই নেতা হাসে, না দিলে বঞ্চনা!",
+    "যত চাঁদা, তত ভালোবাসা!",
+    "চাঁদা দিয়ে যুদ্ধে নয়, ব্যালকনিতে রাজনীতি!",
+  ];
+  const humorText =
+    humorPhrases[Math.floor(Math.random() * humorPhrases.length)];
+  document.getElementById("humor-text").textContent = humorText;
+
+  // Detailed results
   const details = `
-    <p><strong>মোট মাসিক আয়:</strong> ${salary.toFixed(2)} টাকা</p>
-    <p><strong>মাসিক চাঁদা:</strong> ${chada.toFixed(2)} টাকা (${(data.multiplier * 100).toFixed(0)}%)</p>
-    <p><strong>অবশিষ্ট টাকা:</strong> ${remaining.toFixed(2)} টাকা</p>
+    <p>আপনার পেশা: <strong>${profession.replace(/_/g, " ")}</strong></p>
+    <p>মাসিক আয়: <strong>${salary.toFixed(2)} টাকা</strong></p>
+    <p>মাসিক চাঁদা: <strong>${chadaAmount.toFixed(2)} টাকা (${contribution}%)</strong></p>
+    <p>মাসিক হাতে থাকবে: <strong>${remainingSalary.toFixed(2)} টাকা</strong></p>
   `;
-  document.getElementById('result-details').innerHTML = details;
+  document.getElementById("result-details").innerHTML = details;
 
-  // Chart.js data
-  const ctx = document.getElementById('chadaChart').getContext('2d');
-  if(window.chadaChartInstance) {
-    window.chadaChartInstance.destroy();
+  // Show result container
+  resultContainer.classList.remove("hidden");
+
+  // Render chart
+  renderChart(chadaAmount, remainingSalary);
+}
+
+let chartInstance = null;
+
+function renderChart(chadaAmount, remainingSalary) {
+  const ctx = document.getElementById("chadaChart").getContext("2d");
+
+  if (chartInstance) {
+    chartInstance.destroy();
   }
-  window.chadaChartInstance = new Chart(ctx, {
-    type: 'doughnut',
+
+  chartInstance = new Chart(ctx, {
+    type: "doughnut",
     data: {
-      labels: ['চাঁদা', 'অবশিষ্ট টাকা'],
-      datasets: [{
-        data: [chada, remaining],
-        backgroundColor: ['#dc2626', '#2563eb'],
-      }]
+      labels: ["চাঁদা (ব্যয়)", "হাতে থাকবে"],
+      datasets: [
+        {
+          data: [chadaAmount, remainingSalary < 0 ? 0 : remainingSalary],
+          backgroundColor: ["#ef4444", "#3b82f6"],
+          hoverOffset: 20,
+        },
+      ],
     },
     options: {
       plugins: {
-        legend: { position: 'bottom' },
-        tooltip: { enabled: true }
-      }
-    }
-  });
-
-  // Show results
-  resultContainer.classList.remove('hidden');
-}
-
-function generateReceipt() {
-  const receiptContainer = document.getElementById('receipt-container');
-  const professionText = document.getElementById('profession').options[document.getElementById('profession').selectedIndex].text;
-  const chadaText = document.getElementById('remaining-salary').textContent;
-  const remainingText = document.getElementById('remaining-salary').textContent;
-  const leaderMoodText = document.getElementById('leader-mood-text').textContent;
-  const contributionText = document.getElementById('contribution-text').textContent;
-
-  document.getElementById('receipt-profession').textContent = professionText;
-  document.getElementById('receipt-chada').textContent = chadaText;
-  document.getElementById('receipt-remaining').textContent = remainingText;
-  document.getElementById('receipt-leader-mood').textContent = leaderMoodText;
-  document.getElementById('receipt-contribution').textContent = contributionText;
-
-  html2canvas(receiptContainer, { scale: 2 }).then(canvas => {
-    const dataUrl = canvas.toDataURL('image/png');
-    const receiptPreview = document.getElementById('receipt-preview');
-    const downloadLink = document.getElementById('download-link');
-
-    receiptPreview.innerHTML = '';
-    receiptPreview.appendChild(canvas);
-    downloadLink.href = dataUrl;
-
-    // Show modal
-    document.getElementById('receipt-modal').classList.remove('hidden');
+        legend: {
+          labels: {
+            font: {
+              family: "'Noto Sans Bengali', sans-serif",
+              size: 16,
+              weight: "bold",
+            },
+            color: "#1e40af",
+          },
+          position: "bottom",
+        },
+      },
+    },
   });
 }
 
-function closeModal() {
-  document.getElementById('receipt-modal').classList.add('hidden');
+function showRetiredAwamiMessage() {
+  const errorMessage = document.getElementById("error-message");
+  const resultContainer = document.getElementById("result-container");
+
+  resultContainer.classList.add("hidden");
+  errorMessage.innerHTML = `
+    <div class="text-center p-6 bg-green-50 border-2 border-green-300 rounded-lg">
+      <h2 class="text-2xl font-bold text-green-700 mb-4">🏛️ অবসরপ্রাপ্ত নেতার জন্য বিশেষ বার্তা! 🏛️</h2>
+      <p class="text-green-700 mb-2">
+        আপনি তো আমাদের পুরানো সহযোদ্ধা! ৫০% ছাড়ে চাঁদা, ১৫ বছরের কিস্তিতে পরিশোধ, পার্টি অফিসে বিনামূল্যে চা!
+      </p>
+      <p class="italic text-green-600">"রাজনীতিতে অবসর নেই, শুধু দায়িত্ব বদলায়!"</p>
+    </div>
+  `;
+  errorMessage.classList.remove("hidden");
 }

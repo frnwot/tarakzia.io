@@ -1,3 +1,161 @@
 <!DOCTYPE html>
-<!-- Omitted for brevity, will paste full HTML on next step -->
-<!-- index.html content provided by the user will be placed here -->
+<html lang="bn">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>দেশনেতার চাঁদা ক্যালকুলেটর</title>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Custom Stylesheet -->
+    <link rel="stylesheet" href="style.css" />
+
+  </head>
+  <body class="flex flex-col min-h-screen bg-gray-100">
+    <main
+      class="flex-grow flex items-center justify-center py-4 px-2 sm:py-10 sm:px-4"
+    >
+      <div
+        class="w-full max-w-4xl mx-auto main-container rounded-xl sm:rounded-2xl shadow-xl p-4 sm:p-8 space-y-6 sm:space-y-8 text-gray-800"
+      >
+        <!-- Header -->
+        <div class="text-center">
+          <h1 class="text-3xl sm:text-4xl lg:text-5xl font-bold text-blue-800">
+            দেশনেতার চাঁদা ক্যালকুলেটর
+          </h1>
+          <p class="text-gray-600 mt-2 text-base sm:text-lg">
+            আপনার আত্মত্যাগের হিসাব রাখুন! (নেতাদের বিলাসিতার হিসাব আমরা রাখি)
+          </p>
+          <p class="text-red-500 text-sm mt-1 italic">
+            ⚠️ Warning: এই ক্যালকুলেটর ব্যবহারে পকেট ফাঁকা হওয়ার গ্যারান্টি আছে!
+          </p>
+        </div>
+
+        <!-- Input Section -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+          <div class="space-y-2">
+            <label
+              for="profession"
+              class="text-base sm:text-lg font-medium text-gray-700"
+              >আপনার পেশা কী, বিপ্লবী?</label
+            >
+            <select
+              id="profession"
+              class="w-full px-3 py-2 sm:px-4 sm:py-3 bg-white border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-4 focus:ring-blue-500/50 transition duration-300 text-gray-900 text-sm sm:text-base"
+            >
+              <option value="default">--পেশা নির্বাচন করুন--</option>
+              <option value="doctor">ডাক্তার</option>
+              <option value="engineer">ইঞ্জিনিয়ার</option>
+              <option value="teacher">শিক্ষক</option>
+              <option value="govt_job">সরকারী চাকুরীজীবী</option>
+              <option value="nongovt_job">বেসরকারী চাকুরীজীবী</option>
+              <option value="businessman">ব্যবসায়ী</option>
+              <option value="freelancer">ফ্রিল্যান্সার</option>
+              <option value="rickshaw_puller">রিকশাওয়ালা</option>
+              <option value="day_laborer">দিনমজুর</option>
+              <option value="unemployed">বেকার</option>
+              <option value="expatriate_worker">প্রবাসী শ্রমিক</option>
+              <option value="genz">Gen-Z (বিশেষ শাখা)</option>
+              <option value="retired_awami">অবসরপ্রাপ্ত আওয়ামী লীগার</option>
+              <option value="other">অন্যান্য</option>
+            </select>
+          </div>
+          <div class="space-y-2">
+            <label for="salary" class="text-lg font-medium text-gray-700"
+              >মাসিক আয় কত?</label
+            >
+            <input
+              type="number"
+              id="salary"
+              placeholder="এখানে সাহসের সাথে লিখুন..."
+              class="w-full px-4 py-3 bg-white border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-4 focus:ring-blue-500/50 transition duration-300 text-gray-900"
+            />
+          </div>
+        </div>
+
+        <!-- Calculate Button -->
+        <div>
+          <button
+            id="calculateBtn"
+            onclick="calculateChada()"
+            class="w-full font-bold py-3 sm:py-4 px-4 rounded-lg hover:scale-105 transform transition duration-300"
+          >
+            হিসাব দেখুন!
+          </button>
+        </div>
+
+        <!-- Result Section -->
+        <div id="result-container" class="pt-4 hidden space-y-10">
+          <!-- Infographics -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
+            <div class="infographic-card bg-red-50 border-2 border-red-200">
+              <h3 class="text-xl font-bold text-red-800 mb-3">আপনার হাতে থাকবে</h3>
+              <div id="survival-icon" class="w-20 h-20 mb-3 text-red-600"></div>
+              <p id="remaining-salary" class="font-bold text-2xl text-red-700"></p>
+              <p id="survival-text" class="text-md mt-2 font-semibold text-red-600"></p>
+            </div>
+            <div class="infographic-card bg-sky-50 border-2 border-sky-200">
+              <h3 class="text-xl font-bold text-sky-800 mb-3">হাই কমান্ডের প্রতিক্রিয়া</h3>
+              <div id="leader-mood-icon" class="w-20 h-20 mb-3 text-sky-600"></div>
+              <p id="leader-mood-text" class="text-lg font-semibold text-sky-700"></p>
+            </div>
+            <div class="infographic-card bg-green-50 border-2 border-green-200">
+              <h3 class="text-xl font-bold text-green-800 mb-3">আপনার টাকার সদ্ব্যবহার</h3>
+              <div id="contribution-icon" class="w-20 h-20 mb-3 text-green-600"></div>
+              <p id="contribution-text" class="text-lg font-semibold text-green-700"></p>
+            </div>
+          </div>
+
+          <div
+            id="humor-text"
+            class="text-center text-lg sm:text-xl font-semibold text-blue-800 bg-blue-50 p-3 sm:p-4 rounded-lg border border-blue-200"
+          ></div>
+
+          <div>
+            <h3
+              class="text-xl sm:text-2xl font-bold text-center text-gray-700 mb-4"
+            >
+              আপনার অবদানের গ্রাফচিত্র
+            </h3>
+            <div class="bg-gray-50 p-3 sm:p-4 rounded-lg">
+              <canvas id="chadaChart"></canvas>
+            </div>
+          </div>
+
+          <div>
+            <h3
+              class="text-xl sm:text-2xl font-bold text-center text-gray-700 mb-4"
+            >
+              বিস্তারিত হিসাব-নিকাশ
+            </h3>
+            <div
+              id="result-details"
+              class="text-base sm:text-lg bg-gray-50 p-3 sm:p-4 rounded-lg shadow-inner"
+            ></div>
+          </div>
+        </div>
+
+        <!-- Error Message -->
+        <div
+          id="error-message"
+          class="text-center text-red-600 font-bold text-base sm:text-lg hidden"
+        ></div>
+      </div>
+    </main>
+
+    <!-- Chart.js CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+
+    <!-- Custom Script -->
+    <script src="script.js"></script>
+  </body>
+</html>
