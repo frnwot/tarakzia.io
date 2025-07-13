@@ -8,17 +8,132 @@
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
 
+    <!-- html2canvas for receipt image generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;700&display=swap"
+      rel="preconnect"
+      href="https://fonts.gstatic.com"
+      crossorigin
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;700&family=Tiro+Bangla:ital,wght@0,400;1,400&display=swap"
       rel="stylesheet"
     />
 
-    <!-- Custom Stylesheet -->
-    <link rel="stylesheet" href="style.css" />
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
+    <style>
+      body {
+        font-family: "Noto Sans Bengali", sans-serif;
+        scroll-behavior: smooth;
+        background-color: #f3f4f6;
+      }
+      .main-container {
+        background-color: #ffffff;
+        border: 1px solid #e5e7eb;
+      }
+      .result-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 16px;
+        border-bottom: 1px solid #e5e7eb;
+        transition: background-color 0.3s;
+      }
+      .result-item:last-child {
+        border-bottom: none;
+      }
+      .result-item:hover {
+        background-color: #f9fafb;
+      }
+      .infographic-card {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 1.5rem;
+        border-radius: 0.75rem;
+        text-align: center;
+      }
+      .meme-card {
+        padding: 1.5rem;
+        border-radius: 1rem;
+        text-align: center;
+        color: white;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        min-height: 120px;
+      }
+      .meme-card:hover {
+        transform: translateY(-10px) scale(1.03);
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
+          0 10px 10px -5px rgba(0, 0, 0, 0.04);
+      }
+      /* Receipt container for html2canvas */
+      #receipt-container {
+        position: absolute;
+        left: -9999px;
+        width: 1080px;
+        height: 1920px;
+        background: linear-gradient(to bottom, #002347, #004080);
+        color: white;
+        padding: 80px;
+        box-sizing: border-box;
+        font-family: "Tiro Bangla", serif;
+      }
+      /* Modal background */
+      #receipt-modal {
+        background-color: rgba(0, 0, 0, 0.7);
+      }
+
+      /* Responsive */
+      @media (max-width: 640px) {
+        .main-container {
+          margin: 0.5rem;
+          padding: 1rem;
+        }
+        .meme-card {
+          padding: 1rem;
+          min-height: 100px;
+        }
+        .infographic-card {
+          padding: 1rem;
+        }
+        #receipt-modal .bg-white {
+          width: 95% !important;
+          margin: 1rem;
+        }
+        .result-item {
+          padding: 8px 12px;
+          font-size: 0.9rem;
+        }
+      }
+      @media (max-width: 480px) {
+        .meme-card {
+          padding: 0.75rem;
+          min-height: 80px;
+        }
+        .text-6xl {
+          font-size: 2.5rem !important;
+        }
+        .w-16.h-16 {
+          width: 3rem !important;
+          height: 3rem !important;
+        }
+        .w-20.h-20 {
+          width: 4rem !important;
+          height: 4rem !important;
+        }
+      }
+    </style>
   </head>
   <body class="flex flex-col min-h-screen bg-gray-100">
     <main
@@ -27,7 +142,7 @@
       <div
         class="w-full max-w-4xl mx-auto main-container rounded-xl sm:rounded-2xl shadow-xl p-4 sm:p-8 space-y-6 sm:space-y-8 text-gray-800"
       >
-        <!-- Header -->
+        <!-- Header Section -->
         <div class="text-center">
           <h1 class="text-3xl sm:text-4xl lg:text-5xl font-bold text-blue-800">
             দেশনেতার চাঁদা ক্যালকুলেটর
@@ -36,7 +151,8 @@
             আপনার আত্মত্যাগের হিসাব রাখুন! (নেতাদের বিলাসিতার হিসাব আমরা রাখি)
           </p>
           <p class="text-red-500 text-sm mt-1 italic">
-            ⚠️ Warning: এই ক্যালকুলেটর ব্যবহারে পকেট ফাঁকা হওয়ার গ্যারান্টি আছে!
+            ⚠️ Warning: এই ক্যালকুলেটর ব্যবহারে পকেট ফাঁকা হওয়ার গ্যারান্টি
+            আছে!
           </p>
         </div>
 
@@ -85,77 +201,589 @@
         <!-- Calculate Button -->
         <div>
           <button
-            id="calculateBtn"
             onclick="calculateChada()"
-            class="w-full font-bold py-3 sm:py-4 px-4 rounded-lg hover:scale-105 transform transition duration-300"
+            class="w-full bg-blue-600 text-white font-bold py-3 sm:py-4 px-4 rounded-lg hover:bg-blue-700 active:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-500/50 transition duration-300 transform hover:scale-105 text-lg sm:text-xl"
           >
             হিসাব দেখুন!
           </button>
         </div>
 
-        <!-- Result Section -->
-        <div id="result-container" class="pt-4 hidden space-y-10">
-          <!-- Infographics -->
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
-            <div class="infographic-card bg-red-50 border-2 border-red-200">
-              <h3 class="text-xl font-bold text-red-800 mb-3">আপনার হাতে থাকবে</h3>
-              <div id="survival-icon" class="w-20 h-20 mb-3 text-red-600"></div>
-              <p id="remaining-salary" class="font-bold text-2xl text-red-700"></p>
-              <p id="survival-text" class="text-md mt-2 font-semibold text-red-600"></p>
-            </div>
-            <div class="infographic-card bg-sky-50 border-2 border-sky-200">
-              <h3 class="text-xl font-bold text-sky-800 mb-3">হাই কমান্ডের প্রতিক্রিয়া</h3>
-              <div id="leader-mood-icon" class="w-20 h-20 mb-3 text-sky-600"></div>
-              <p id="leader-mood-text" class="text-lg font-semibold text-sky-700"></p>
-            </div>
-            <div class="infographic-card bg-green-50 border-2 border-green-200">
-              <h3 class="text-xl font-bold text-green-800 mb-3">আপনার টাকার সদ্ব্যবহার</h3>
-              <div id="contribution-icon" class="w-20 h-20 mb-3 text-green-600"></div>
-              <p id="contribution-text" class="text-lg font-semibold text-green-700"></p>
-            </div>
-          </div>
-
-          <div
-            id="humor-text"
-            class="text-center text-lg sm:text-xl font-semibold text-blue-800 bg-blue-50 p-3 sm:p-4 rounded-lg border border-blue-200"
-          ></div>
-
-          <div>
-            <h3
-              class="text-xl sm:text-2xl font-bold text-center text-gray-700 mb-4"
-            >
-              আপনার অবদানের গ্রাফচিত্র
-            </h3>
-            <div class="bg-gray-50 p-3 sm:p-4 rounded-lg">
-              <canvas id="chadaChart"></canvas>
+        <!-- Retired Awami League Infographic Result Section -->
+        <div
+          id="awami-result-container"
+          class="pt-4 hidden space-y-4 sm:space-y-6"
+        >
+          <div class="text-center">
+            <h2 class="text-2xl sm:text-3xl font-bold text-green-600 mb-4">
+              🏛️ অবসরপ্রাপ্ত নেতার জন্য বিশেষ বার্তা! 🏛️
+            </h2>
+            <div class="bg-green-50 p-6 rounded-lg border-2 border-green-200">
+              <div class="text-6xl sm:text-8xl mb-4">🤝</div>
+              <h3 class="text-xl sm:text-2xl font-bold text-green-800 mb-4">
+                "আপনি তো আমাদের পুরানো সহযোদ্ধা!"
+              </h3>
+              <p class="text-lg text-green-700 mb-4">
+                প্রিয় অভিজ্ঞ নেতা, আপনার অবদানের কথা আমরা ভুলিনি। তবে এখন আপনার
+                পালা রিভার্স গিয়ারে! 😄
+              </p>
+              <div class="bg-white p-4 rounded-lg border border-green-300 mb-4">
+                <h4 class="font-bold text-green-800 mb-2">
+                  🎁 আপনার জন্য বিশেষ সুবিধা:
+                </h4>
+                <ul class="text-left text-green-700 space-y-1">
+                  <li>✓ ৫০% ছাড়ে চাঁদা!</li>
+                  <li>✓ ১৫ বছরের কিস্তিতে পরিশোধ!</li>
+                  <li>✓ নোবেল শান্তি পুরস্কারের আশ্বাস!</li>
+                  <li>✓ পার্টি অফিসে বিনামূল্যে চা!</li>
+                </ul>
+              </div>
+              <p class="text-sm text-green-600 italic">
+                "রাজনীতিতে অবসর নেই, শুধু দায়িত্ব বদলায়!" - নেতৃত্ব দর্শন
+              </p>
             </div>
           </div>
 
-          <div>
-            <h3
-              class="text-xl sm:text-2xl font-bold text-center text-gray-700 mb-4"
+          <!-- Special Receipt Button for Retired Members -->
+          <div class="text-center mt-6">
+            <button
+              onclick="generateSpecialReceipt()"
+              class="bg-gradient-to-r from-green-600 to-blue-600 text-white px-6 py-3 sm:px-8 sm:py-4 rounded-lg font-bold text-base sm:text-lg hover:from-green-700 hover:to-blue-700 transition-all duration-300 transform hover:scale-105 shadow-lg"
             >
-              বিস্তারিত হিসাব-নিকাশ
+              🎖️ বিশেষ সনদপত্র ডাউনলোড করুন
+            </button>
+          </div>
+
+          <!-- Additional Satirical Content for Retired Members -->
+          <div class="mt-6">
+            <h3
+              class="text-xl sm:text-2xl font-bold text-center text-red-700 mb-4"
+            >
+              "অবসরপ্রাপ্ত" শাখার ফলাফল
             </h3>
             <div
-              id="result-details"
-              class="text-base sm:text-lg bg-gray-50 p-3 sm:p-4 rounded-lg shadow-inner"
-            ></div>
+              class="meme-card col-span-1 md:col-span-2 mt-4 sm:mt-6"
+              style="background: linear-gradient(135deg, #b91c1c, #7f1d1d)"
+            >
+              <div class="w-16 h-16 sm:w-20 sm:h-20 mb-3 text-4xl sm:text-6xl">
+                🚪
+              </div>
+              <div class="text-2xl sm:text-3xl font-bold">
+                মাঙ্গের নাতি, যা ভাগ!
+              </div>
+              <p class="mt-2 text-base sm:text-lg">
+                "আগে কি সুন্দর দিন কাটাইতাম..."
+              </p>
+            </div>
+            <div
+              class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mt-4 sm:mt-6"
+            >
+              <div
+                class="meme-card"
+                style="background: linear-gradient(135deg, #166534, #14532d)"
+              >
+                <div
+                  class="w-16 h-16 sm:w-20 sm:h-20 mb-3 text-4xl sm:text-6xl"
+                >
+                  💰
+                </div>
+                <div class="text-xl sm:text-2xl font-bold">অবদান: ১০%</div>
+                <p class="mt-2 text-sm sm:text-md">"দলের দুর্দিনে পাশে আছি!"</p>
+              </div>
+              <div
+                class="meme-card"
+                style="background: linear-gradient(135deg, #b45309, #78350f)"
+              >
+                <div
+                  class="w-16 h-16 sm:w-20 sm:h-20 mb-3 text-4xl sm:text-6xl"
+                >
+                  🏦
+                </div>
+                <div class="text-xl sm:text-2xl font-bold">অবশিষ্ট: ৯০%</div>
+                <p class="mt-2 text-sm sm:text-md">"এইটা সুইস ব্যাংকে যাবে"</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Gen-Z Infographic Result Section -->
+        <div
+          id="genz-result-container"
+          class="pt-4 hidden space-y-4 sm:space-y-6"
+        >
+          <div
+            class="text-center p-4 bg-red-100 border-2 border-red-500 rounded-lg my-4"
+          >
+            <p
+              class="text-2xl sm:text-4xl font-bold text-red-700 animate-pulse"
+            >
+              "চাঁদা? পুটকি দিয়ে ভরে দিবো! 💀"
+            </p>
+            <p class="text-lg text-red-600 mt-2">
+              "আঙ্কেল, রাজনীতি আর ক্রিঞ্জ এর মধ্যে পার্থক্য কী?"
+            </p>
+          </div>
+          <div
+            class="grid grid-cols-2 md:grid-cols-3 gap-2 sm:gap-4 mt-4 sm:mt-6"
+          >
+            <div
+              class="meme-card"
+              style="background: linear-gradient(135deg, #ef4444, #b91c1c)"
+            >
+              <div
+                class="w-12 h-12 sm:w-16 sm:h-16 mb-2 sm:mb-3 text-3xl sm:text-6xl"
+              >
+                🎯
+              </div>
+              <div class="text-lg sm:text-2xl font-bold">BNP CDI</div>
+            </div>
+            <div
+              class="meme-card"
+              style="background: linear-gradient(135deg, #f97316, #c2410c)"
+            >
+              <div
+                class="w-12 h-12 sm:w-16 sm:h-16 mb-2 sm:mb-3 text-3xl sm:text-6xl"
+              >
+                🔥
+              </div>
+              <div class="text-lg sm:text-2xl font-bold">চুদলাম না যা ভাগ</div>
+            </div>
+            <div
+              class="meme-card"
+              style="background: linear-gradient(135deg, #22c55e, #15803d)"
+            >
+              <div
+                class="w-12 h-12 sm:w-16 sm:h-16 mb-2 sm:mb-3 text-3xl sm:text-6xl"
+              >
+                👑
+              </div>
+              <div class="text-lg sm:text-2xl font-bold">TINKU ZIA</div>
+            </div>
+            <div
+              class="meme-card"
+              style="background: linear-gradient(135deg, #8b5cf6, #6d28d9)"
+            >
+              <div
+                class="w-12 h-12 sm:w-16 sm:h-16 mb-2 sm:mb-3 text-3xl sm:text-6xl"
+              >
+                💀
+              </div>
+              <div class="text-sm sm:text-lg font-bold">
+                এক দুই তিন চার,<br />ছাত্রদলের পুটকি মার।
+              </div>
+            </div>
+            <div
+              class="meme-card"
+              style="background: linear-gradient(135deg, #64748b, #334155)"
+            >
+              <div
+                class="w-12 h-12 sm:w-16 sm:h-16 mb-2 sm:mb-3 text-3xl sm:text-6xl"
+              >
+                🏠
+              </div>
+              <div class="text-sm sm:text-lg font-bold">
+                টিনের চালে কাউয়া,<br />তারেক জিয়া শাউয়া।
+              </div>
+            </div>
+            <div
+              class="meme-card"
+              style="background: linear-gradient(135deg, #f59e0b, #d97706)"
+            >
+              <div
+                class="w-12 h-12 sm:w-16 sm:h-16 mb-2 sm:mb-3 text-3xl sm:text-6xl"
+              >
+                🔥
+              </div>
+              <div class="text-sm sm:text-lg font-bold">
+                আপনার চাঁদা <br />আমার টাকা দাও!
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Regular Result Container -->
+        <div
+          id="result-container"
+          class="hidden flex flex-col space-y-6 mt-6 sm:mt-10"
+        >
+          <h2
+            id="result-heading"
+            class="text-3xl sm:text-4xl font-bold text-blue-900 text-center"
+          >
+            আপনার চাঁদা হিসাব
+          </h2>
+
+          <!-- Infographic Cards -->
+          <div
+            id="infographic-cards"
+            class="grid grid-cols-1 sm:grid-cols-3 gap-6 text-center"
+          >
+            <div
+              id="remaining-salary-card"
+              class="infographic-card bg-white shadow-md border border-gray-300"
+            >
+              <div class="text-blue-600 text-5xl mb-3">💰</div>
+              <div
+                id="remaining-salary"
+                class="text-3xl font-bold text-gray-800"
+              >
+                ০ টাকা
+              </div>
+              <div id="survival-text" class="text-gray-600 mt-1">
+                হাতে থাকবে
+              </div>
+            </div>
+            <div
+              id="leader-mood-card"
+              class="infographic-card bg-white shadow-md border border-gray-300"
+            >
+              <div class="text-red-600 text-5xl mb-3">😡</div>
+              <div
+                id="leader-mood-text"
+                class="text-3xl font-bold text-gray-800"
+              >
+                মুখের ভাব
+              </div>
+              <div id="mood-comment" class="text-gray-600 mt-1">
+                নেতাদের চেহারা
+              </div>
+            </div>
+            <div
+              id="contribution-card"
+              class="infographic-card bg-white shadow-md border border-gray-300"
+            >
+              <div class="text-green-600 text-5xl mb-3">🤝</div>
+              <div
+                id="contribution-text"
+                class="text-3xl font-bold text-gray-800"
+              >
+                অবদান
+              </div>
+              <div id="contribution-comment" class="text-gray-600 mt-1">
+                দলের জন্য
+              </div>
+            </div>
+          </div>
+
+          <!-- Chart Section -->
+          <div
+            id="chart-section"
+            class="bg-white p-6 rounded-lg shadow-md max-w-2xl mx-auto"
+          >
+            <canvas id="chadaChart" width="400" height="400"></canvas>
+          </div>
+
+          <!-- Detailed Result -->
+          <pre
+            id="result-details"
+            class="whitespace-pre-wrap p-4 bg-gray-100 border rounded-lg text-gray-700"
+          >
+          </pre>
+
+          <!-- Receipt Generation Button -->
+          <div class="text-center">
+            <button
+              onclick="generateReceipt()"
+              class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-8 py-3 rounded-lg font-bold text-lg hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 transform hover:scale-105 shadow-lg"
+            >
+              📄 রসিদ তৈরি করুন এবং ডাউনলোড করুন
+            </button>
           </div>
         </div>
 
         <!-- Error Message -->
         <div
           id="error-message"
-          class="text-center text-red-600 font-bold text-base sm:text-lg hidden"
+          class="hidden text-center text-red-600 font-semibold text-lg"
         ></div>
       </div>
     </main>
 
-    <!-- Chart.js CDN -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+    <!-- Receipt Modal -->
+    <div
+      id="receipt-modal"
+      class="fixed inset-0 hidden items-center justify-center z-50"
+      style="background-color: rgba(0, 0, 0, 0.7);"
+    >
+      <div
+        class="bg-white p-6 rounded-lg max-w-lg w-full relative shadow-lg max-h-[90vh] overflow-auto"
+      >
+        <h2 class="text-xl font-bold mb-4 text-gray-900">
+          রসিদ প্রিভিউ
+        </h2>
+        <div
+          id="receipt-preview"
+          class="border border-gray-300 rounded-md overflow-auto max-h-[60vh]"
+        ></div>
+        <a
+          id="download-link"
+          href="#"
+          download="chada_receipt.png"
+          class="inline-block mt-4 px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition"
+          >Download Image</a
+        >
+        <button
+          onclick="closeModal()"
+          class="absolute top-2 right-2 text-gray-700 hover:text-gray-900 text-2xl font-bold"
+          aria-label="Close modal"
+        >
+          &times;
+        </button>
+      </div>
+    </div>
 
-    <!-- Custom Script -->
-    <script src="script.js"></script>
+    <!-- Hidden Receipt Container for Image Generation -->
+    <div id="receipt-container" aria-hidden="true">
+      <h1
+        style="
+          font-size: 72px;
+          margin-bottom: 40px;
+          text-align: center;
+          font-weight: 700;
+          font-family: 'Tiro Bangla', serif;
+        "
+      >
+        দেশনেতার চাঁদা রসিদ
+      </h1>
+      <p
+        style="
+          font-size: 40px;
+          margin-bottom: 30px;
+          text-align: center;
+          font-family: 'Tiro Bangla', serif;
+        "
+      >
+        <strong>পেশা:</strong>
+        <span id="receipt-profession">--</span>
+      </p>
+      <p
+        style="
+          font-size: 40px;
+          margin-bottom: 30px;
+          text-align: center;
+          font-family: 'Tiro Bangla', serif;
+        "
+      >
+        <strong>চাঁদা পরিমাণ:</strong>
+        <span id="receipt-chada">০ টাকা</span>
+      </p>
+      <p
+        style="
+          font-size: 40px;
+          margin-bottom: 30px;
+          text-align: center;
+          font-family: 'Tiro Bangla', serif;
+        "
+      >
+        <strong>অবশিষ্ট টাকা:</strong>
+        <span id="receipt-remaining">০ টাকা</span>
+      </p>
+      <p
+        style="
+          font-size: 32px;
+          margin-top: 60px;
+          text-align: center;
+          font-family: 'Tiro Bangla', serif;
+        "
+      >
+        ধন্যবাদ, আপনার অবদানের জন্য! ❤️
+      </p>
+    </div>
+
+    <!-- Main JavaScript -->
+    <script>
+      // Global Chart variable to avoid multiple instances
+      let myChart = null;
+
+      function calculateChada() {
+        // Elements
+        const professionSelect = document.getElementById("profession");
+        const salaryInput = document.getElementById("salary");
+        const errorMessage = document.getElementById("error-message");
+        const resultContainer = document.getElementById("result-container");
+        const awamiResultContainer = document.getElementById(
+          "awami-result-container"
+        );
+        const genzResultContainer = document.getElementById("genz-result-container");
+
+        // Hide all result sections initially
+        errorMessage.classList.add("hidden");
+        resultContainer.classList.add("hidden");
+        awamiResultContainer.classList.add("hidden");
+        genzResultContainer.classList.add("hidden");
+
+        // Clear detailed results
+        document.getElementById("result-details").textContent = "";
+
+        // Get values
+        const profession = professionSelect.value;
+        const salary = Number(salaryInput.value);
+
+        // Validate
+        if (profession === "default" || isNaN(salary) || salary <= 0) {
+          errorMessage.textContent = "অনুগ্রহ করে সঠিক পেশা এবং মাসিক আয় লিখুন।";
+          errorMessage.classList.remove("hidden");
+          return;
+        }
+
+        if (profession === "retired_awami") {
+          awamiResultContainer.classList.remove("hidden");
+          // No chart or calculation needed here
+          return;
+        }
+
+        if (profession === "genz") {
+          genzResultContainer.classList.remove("hidden");
+          return;
+        }
+
+        // Regular calculation logic
+        resultContainer.classList.remove("hidden");
+
+        // Satirical chada calculation: let's say 12.5% of salary as chada (customizable)
+        const chadaPercent = 12.5 / 100;
+        const chada = salary * chadaPercent;
+        const remaining = salary - chada;
+
+        // Update infographic cards
+        document.getElementById("remaining-salary").textContent =
+          remaining.toLocaleString("bn-BD") + " টাকা";
+        document.getElementById("survival-text").textContent = "হাতে থাকবে";
+
+        // Mood logic based on leftover money (satire)
+        const leaderMood = remaining >= salary * 0.75 ? "সন্তুষ্ট" : "চিন্তিত";
+        const moodEmoji = remaining >= salary * 0.75 ? "😌" : "😡";
+        document.getElementById("leader-mood-text").textContent = leaderMood;
+        document.getElementById("leader-mood-card").querySelector("div").textContent =
+          moodEmoji;
+        document.getElementById("mood-comment").textContent = "নেতাদের মুখের ভাব";
+
+        // Contribution text
+        document.getElementById("contribution-text").textContent = "দলের জন্য অবদান";
+        document.getElementById("contribution-comment").textContent = "মূল্যবান অবদান";
+
+        // Draw chart with chada vs remaining
+        drawChart(chada, remaining);
+
+        // Detailed result text
+        document.getElementById(
+          "result-details"
+        ).textContent = `আপনার মাসিক আয়: ${salary.toLocaleString(
+          "bn-BD"
+        )} টাকা\nচাঁদা (১২.৫%): ${chada.toLocaleString(
+          "bn-BD"
+        )} টাকা\nঅবশিষ্ট: ${remaining.toLocaleString("bn-BD")} টাকা\n\nসাবধান: এই হিসাব সম্পূর্ণ মজার উদ্দেশ্যে, বাস্তবতার সাথে মিল নাও থাকতে পারে।`;
+
+        // Reset scroll to results
+        resultContainer.scrollIntoView({ behavior: "smooth" });
+      }
+
+      function drawChart(chada, remaining) {
+        const ctx = document.getElementById("chadaChart").getContext("2d");
+
+        if (myChart) {
+          myChart.destroy();
+        }
+
+        myChart = new Chart(ctx, {
+          type: "doughnut",
+          data: {
+            labels: ["চাঁদা", "অবশিষ্ট টাকা"],
+            datasets: [
+              {
+                data: [chada, remaining],
+                backgroundColor: ["#dc2626", "#2563eb"],
+                hoverOffset: 20,
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            plugins: {
+              legend: {
+                position: "bottom",
+                labels: {
+                  font: { size: 16, family: "Noto Sans Bengali" },
+                },
+              },
+              tooltip: {
+                callbacks: {
+                  label: function (context) {
+                    return (
+                      context.label +
+                      ": " +
+                      context.parsed.toLocaleString("bn-BD") +
+                      " টাকা"
+                    );
+                  },
+                },
+              },
+            },
+          },
+        });
+      }
+
+      // Generate receipt image using html2canvas
+      function generateReceipt() {
+        const professionSelect = document.getElementById("profession");
+        const salaryInput = document.getElementById("salary");
+
+        // Validate before generating
+        if (professionSelect.value === "default" || salaryInput.value <= 0) {
+          alert("অনুগ্রহ করে সঠিক পেশা এবং মাসিক আয় লিখুন।");
+          return;
+        }
+
+        // Calculate chada and remaining as in main calc
+        const salary = Number(salaryInput.value);
+        const chadaPercent = 12.5 / 100;
+        const chada = salary * chadaPercent;
+        const remaining = salary - chada;
+
+        // Set receipt values
+        const professionText =
+          professionSelect.options[professionSelect.selectedIndex].text;
+        document.getElementById("receipt-profession").textContent = professionText;
+        document.getElementById("receipt-chada").textContent =
+          chada.toLocaleString("bn-BD") + " টাকা";
+        document.getElementById("receipt-remaining").textContent =
+          remaining.toLocaleString("bn-BD") + " টাকা";
+
+        const receipt = document.getElementById("receipt-container");
+
+        // Generate canvas
+        html2canvas(receipt, { scale: 2 }).then((canvas) => {
+          const preview = document.getElementById("receipt-preview");
+          preview.innerHTML = "";
+          preview.appendChild(canvas);
+
+          // Set download link
+          const downloadLink = document.getElementById("download-link");
+          downloadLink.href = canvas.toDataURL("image/png");
+
+          // Show modal
+          document.getElementById("receipt-modal").classList.remove("hidden");
+        });
+      }
+
+      // Generate special receipt for retired Awami League members
+      function generateSpecialReceipt() {
+        alert(
+          "বিশেষ সনদপত্র ডাউনলোড ফিচার শীঘ্রই আসছে। ততক্ষণ অপেক্ষা করুন! 🙏"
+        );
+        // You can implement similar to generateReceipt() if you want.
+      }
+
+      // Close receipt modal
+      function closeModal() {
+        document.getElementById("receipt-modal").classList.add("hidden");
+      }
+
+      // Optional: Close modal on outside click
+      document.getElementById("receipt-modal").addEventListener("click", (e) => {
+        if (e.target.id === "receipt-modal") {
+          closeModal();
+        }
+      });
+    </script>
   </body>
 </html>
